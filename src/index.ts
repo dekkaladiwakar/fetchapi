@@ -54,9 +54,9 @@ app.post("/mailerlite", (req, resp) => {
 // Syncing Moosend with MailerLite
 app.get("/sync", (req, res) => {
   let data: Array<any> = [];
+  const mAPIKEY = req.body.mAPIKEY;
   getSubscribers(req.body)
     .then((result: Array<any>) => {
-      const mAPIKEY = req.body.mAPIKEY;
       result.forEach((element) => {
         searchSub(element, mAPIKEY)
           .then((results: any) => {
@@ -77,7 +77,7 @@ app.get("/sendfox", (req, res) => {
 });
 
 app.post("/sendfox", (req, res) => {
-  addContact(req.body)
+  addContact(req.body.sAPIKEY, req.body)
     .then((result: any) => {
       res.json({
         id: result.result.id,
@@ -95,26 +95,43 @@ app.post("/sendfox", (req, res) => {
 app.post("/syncLite", (req, res) => {
   let data: Array<any> = [];
   const sAPIKEY = req.body.sAPIKEY;
-  getSub(req.body).then((resultOne: Array<any>) => {
-    var addLoop = new Promise((resolve, reject) => {
+  let counter = 0;
+  getSub(req.body.mAPIKEY)
+    .then((resultOne: Array<any>) => {
       resultOne.forEach((element: any) => {
-        searchContact(sAPIKEY, element.email).then((resultTwo: any) => {
-          if (resultTwo.status === true) {
-            addContact(sAPIKEY, element).then((resultThree: any) => {
-              let final = {
-                id: resultThree.result.id,
-                name: resultThree.result.first_name,
-                email: resultThree.result.email,
-                status: resultThree.status,
-                msg: resultThree.msg,
-              };
-              data.push(final);
-            });
-          }
-        });
+        searchContact(sAPIKEY, element.email)
+          .then((resultTwo: any) => {
+            if (resultTwo.status === false) {
+              addContact(sAPIKEY, element)
+                .then((resultThree: any) => {
+                  let final = {
+                    id: resultThree.result.id,
+                    name: resultThree.result.first_name,
+                    email: resultThree.result.email,
+                    status: resultThree.status,
+                    msg: resultThree.msg,
+                  };
+                  data.push(final);
+                  counter++;
+                  if (counter === resultOne.length) {
+                    res.json(data);
+                  }
+                })
+                .catch((err: {}) => res.json(err));
+            } else {
+              counter++;
+              if (counter === resultOne.length) {
+                res.json({
+                  data: data,
+                  msg: `${counter} out of ${resultOne.length} contacts already exists.`,
+                });
+              }
+            }
+          })
+          .catch((err: {}) => res.json(err));
       });
-    });
-  });
+    })
+    .catch((err: {}) => res.json(err));
 });
 
 app.listen("3000", () => {

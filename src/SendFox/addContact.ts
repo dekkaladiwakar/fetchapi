@@ -1,6 +1,12 @@
 import axios from "axios";
 
-const addContact = (input: any) => {
+const addContact = (
+  sAPIKEY: string,
+  input: {
+    email: string;
+    name: string;
+  }
+) => {
   return axios({
     method: "post",
     url: "https://api.sendfox.com/contacts",
@@ -9,7 +15,7 @@ const addContact = (input: any) => {
       first_name: input.name,
     },
     headers: {
-      Authorization: "Bearer " + input.sAPIKEY,
+      Authorization: "Bearer " + sAPIKEY,
     },
   })
     .then((res: any) => {
