@@ -20,6 +20,10 @@ app.get("/", (req, res) => {
   res.send("Route Working");
 });
 
+app.get("/sync", (req, res) => {
+  getSubscribers(req.body).then().catch();
+});
+
 app.get("/moosend", (req, resp) => {
   getSubscribers(req.body)
     .then((res: any) => resp.json(res))
