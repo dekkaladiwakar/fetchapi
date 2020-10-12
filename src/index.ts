@@ -5,8 +5,11 @@ import cors from "cors";
 const app = express();
 
 // Custom Routes
-const searchSub = require("./search");
-const getSubscribers = require("./getSubscribers");
+const searchSub = require("./MailerLite/search");
+const getSubscribers = require("./Moosend/getSubscribers");
+const getSub = require("./MailerLite/getSub");
+const searchContact = require("./SendFox/searchContact");
+const addContact = require("./SendFox/addContact");
 
 // Body Parser
 app.use(urlencoded({ extended: false }));
@@ -26,7 +29,16 @@ app.get("/moosend", (req, resp) => {
     .catch((err: any) => resp.json(err));
 });
 
-// Search and Update Subscribers
+// Getting subscribers from MailerLite
+app.get("/mailerlite", (req, res) => {
+  getSub(req.body.mAPIKEY)
+    .then((result: Array<any>) => {
+      res.json(result);
+    })
+    .catch((err: {}) => res.json(err));
+});
+
+// Search and Update Subscribers in MailerLite
 app.post("/mailerlite", (req, resp) => {
   const mAPIKEY = req.body.mAPIKEY;
   const result = { Email: req.body.email, Name: req.body.name };
@@ -55,6 +67,54 @@ app.get("/sync", (req, res) => {
       });
     })
     .catch((err: {}) => res.json(err));
+});
+
+// Searching SendFox for contacts
+app.get("/sendfox", (req, res) => {
+  searchContact(req.body.sAPIKEY, req.body.email)
+    .then((result: any) => res.json(result))
+    .catch((err: {}) => res.json(err));
+});
+
+app.post("/sendfox", (req, res) => {
+  addContact(req.body)
+    .then((result: any) => {
+      res.json({
+        id: result.result.id,
+        name: result.result.first_name,
+        email: result.result.email,
+        status: result.status,
+        msg: result.msg,
+      });
+    })
+    .catch((err: {}) => {
+      res.json(err);
+    });
+});
+
+app.post("/syncLite", (req, res) => {
+  let data: Array<any> = [];
+  const sAPIKEY = req.body.sAPIKEY;
+  getSub(req.body).then((resultOne: Array<any>) => {
+    var addLoop = new Promise((resolve, reject) => {
+      resultOne.forEach((element: any) => {
+        searchContact(sAPIKEY, element.email).then((resultTwo: any) => {
+          if (resultTwo.status === true) {
+            addContact(sAPIKEY, element).then((resultThree: any) => {
+              let final = {
+                id: resultThree.result.id,
+                name: resultThree.result.first_name,
+                email: resultThree.result.email,
+                status: resultThree.status,
+                msg: resultThree.msg,
+              };
+              data.push(final);
+            });
+          }
+        });
+      });
+    });
+  });
 });
 
 app.listen("3000", () => {

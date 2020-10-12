@@ -9,7 +9,7 @@ const getSubscribers = (input: any) => {
     .then((res) => {
       const result = res.data.Context.Subscribers;
       let details: Array<any> = [];
-      result.forEach((element: any) => {
+      result.forEach((element: { Name: string; Email: string }) => {
         details.push({ Email: element.Email, Name: element.Name });
       });
       return Promise.resolve(details);
