@@ -1,16 +1,21 @@
 import axios from "axios";
 
-const updateSub = (input: any) => {
+const updateSub = (
+  input: {
+    Email: string;
+    Name: string;
+  },
+  mAPIKEY: string
+) => {
   return axios({
     method: "put",
-    url: `https://api.mailerlite.com/api/v2/subscribers/${input.email}`,
+    url: `https://api.mailerlite.com/api/v2/subscribers/${input.Email}`,
     data: {
-      name: input.name,
-      type: input.subscription,
+      name: input.Name,
     },
     headers: {
       "Content-Type": "application/json",
-      "X-MailerLite-ApiKey": input.APIKEY,
+      "X-MailerLite-ApiKey": mAPIKEY,
     },
   })
     .then((res) => {

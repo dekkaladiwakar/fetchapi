@@ -3,29 +3,35 @@ import axios from "axios";
 const createSub = require("./create");
 const updateSub = require("./update");
 
-const searchSub = (input: any) => {
+const searchSub = (
+  result: {
+    Email: string;
+    Name: string;
+  },
+  mAPIKEY: string
+) => {
   return axios({
     method: "get",
-    url: `https://api.mailerlite.com/api/v2/subscribers/search?query=${input.email}`,
+    url: `https://api.mailerlite.com/api/v2/subscribers/search?query=${result.Email}`,
     headers: {
       "Content-Type": "application/json",
-      "X-MailerLite-ApiKey": input.APIKEY,
+      "X-MailerLite-ApiKey": mAPIKEY,
     },
   })
-    .then((result) => {
+    .then((res) => {
       return new Promise((resolve, reject) => {
-        if (result.data.length === 0) {
-          createSub(input)
-            .then((res: string) => {
-              resolve(res);
+        if (res.data.length === 0) {
+          createSub(result, mAPIKEY)
+            .then((resp: string) => {
+              resolve("Email : " + result.Email + " -> " + resp);
             })
             .catch((err: {}) => {
               reject(err);
             });
         } else {
-          updateSub(input)
-            .then((res: string) => {
-              resolve(res);
+          updateSub(result, mAPIKEY)
+            .then((resp: string) => {
+              resolve("Email : " + result.Email + " -> " + resp);
             })
             .catch((err: {}) => {
               reject(err);

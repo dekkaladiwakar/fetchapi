@@ -1,16 +1,22 @@
 import axios from "axios";
 
-const createSub = (input: any) => {
+const createSub = (
+  input: {
+    Email: string;
+    Name: string;
+  },
+  mAPIKEY: string
+) => {
   return axios({
     method: "post",
     url: "https://api.mailerlite.com/api/v2/subscribers",
     data: {
-      email: input.email,
-      name: input.name,
+      email: input.Email,
+      name: input.Name,
     },
     headers: {
       "Content-Type": "application/json",
-      "X-MailerLite-ApiKey": input.APIKEY,
+      "X-MailerLite-ApiKey": mAPIKEY,
     },
   })
     .then((res) => {
