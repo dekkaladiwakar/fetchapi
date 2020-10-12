@@ -1,26 +1,24 @@
 import axios from "axios";
 
 const updateSub = (input: any) => {
-  new Promise((resolve, reject) => {
-    axios({
-      method: "post",
-      url: "https://api.mailerlite.com/api/v2/subscribers",
-      data: {
-        email: input.email,
-        name: input.name,
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "X-MailerLite-ApiKey": input.APIKEY,
-      },
+  return axios({
+    method: "put",
+    url: `https://api.mailerlite.com/api/v2/subscribers/${input.email}`,
+    data: {
+      name: input.name,
+      type: input.subscription,
+    },
+    headers: {
+      "Content-Type": "application/json",
+      "X-MailerLite-ApiKey": input.APIKEY,
+    },
+  })
+    .then((res) => {
+      return Promise.resolve("Successfully Updated");
     })
-      .then((res) => {
-        resolve("Successfully Updated");
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
+    .catch((err) => {
+      return Promise.reject(err);
+    });
 };
 
 module.exports = updateSub;
