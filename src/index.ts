@@ -17,40 +17,6 @@ app.use(json());
 
 //app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 
-// Test Route
-app.get("/", (req, res) => {
-  res.send("Route Working");
-});
-
-// Getting subscribers from Moosend.
-app.get("/moosend", (req, resp) => {
-  getSubscribers(req.body)
-    .then((res: any) => resp.json(res))
-    .catch((err: any) => resp.json(err));
-});
-
-// Getting subscribers from MailerLite
-app.get("/mailerlite", (req, res) => {
-  getSub(req.body.mAPIKEY)
-    .then((result: Array<any>) => {
-      res.json(result);
-    })
-    .catch((err: {}) => res.json(err));
-});
-
-// Search and Update Subscribers in MailerLite
-app.post("/mailerlite", (req, resp) => {
-  const mAPIKEY = req.body.mAPIKEY;
-  const result = { Email: req.body.email, Name: req.body.name };
-  searchSub(result, mAPIKEY)
-    .then((result: any) => {
-      resp.json(result);
-    })
-    .catch((err: any) => {
-      resp.json(err);
-    });
-});
-
 // Syncing Moosend with MailerLite
 app.get("/sync", (req, res) => {
   let data: Array<any> = [];
@@ -63,28 +29,9 @@ app.get("/sync", (req, res) => {
             data.push(results);
             if (data.length === result.length) res.json(data);
           })
-          .catch((err: {}) => res.json(err));
-      });
-    })
-    .catch((err: {}) => res.json(err));
-});
-
-// Searching SendFox for contacts
-app.get("/sendfox", (req, res) => {
-  searchContact(req.body.sAPIKEY, req.body.email)
-    .then((result: any) => res.json(result))
-    .catch((err: {}) => res.json(err));
-});
-
-app.post("/sendfox", (req, res) => {
-  addContact(req.body.sAPIKEY, req.body)
-    .then((result: any) => {
-      res.json({
-        id: result.result.id,
-        name: result.result.first_name,
-        email: result.result.email,
-        status: result.status,
-        msg: result.msg,
+          .catch((err: {}) => {
+            res.json(err);
+          });
       });
     })
     .catch((err: {}) => {
@@ -92,10 +39,12 @@ app.post("/sendfox", (req, res) => {
     });
 });
 
+// Syncing MailerLite with SendFox
 app.post("/syncLite", (req, res) => {
   let data: Array<any> = [];
   const sAPIKEY = req.body.sAPIKEY;
   let counter = 0;
+  let counterFail = 0;
   getSub(req.body.mAPIKEY)
     .then((resultOne: Array<any>) => {
       resultOne.forEach((element: any) => {
@@ -114,16 +63,20 @@ app.post("/syncLite", (req, res) => {
                   data.push(final);
                   counter++;
                   if (counter === resultOne.length) {
-                    res.json(data);
+                    res.json({
+                      data: data,
+                      msg: `${counterFail} out of ${resultOne.length} contacts already exists.`,
+                    });
                   }
                 })
                 .catch((err: {}) => res.json(err));
             } else {
               counter++;
+              counterFail++;
               if (counter === resultOne.length) {
                 res.json({
                   data: data,
-                  msg: `${counter} out of ${resultOne.length} contacts already exists.`,
+                  msg: `${counterFail} out of ${resultOne.length} contacts already exists.`,
                 });
               }
             }

@@ -40,7 +40,10 @@ const searchSub = (
       });
     })
     .catch((err) => {
-      return Promise.reject(err);
+      return Promise.reject({
+        error: err.statusCode,
+        msg: "Authetication Error",
+      });
     });
 };
 
