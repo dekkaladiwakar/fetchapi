@@ -33,19 +33,19 @@ app.get("/sync", (req, res) => {
             }
           })
           .catch((err: {}) => {
-            res.json(err);
+            return res.json(err);
           });
       });
     })
     .catch((err: {}) => {
-      res.json(err);
+      return res.json(err);
     });
 });
 
 // Syncing MailerLite with SendFox
 app.post("/syncLite", (req, res) => {
   let data: Array<any> = [];
-  const sAPIKEY = req.body.sAPIKEY;
+  const sAPIKEY = !isEmpty(req.body.sAPIKEY) ? req.body.sAPIKEY : "";
   let counter = 0;
   let counterFail = 0;
   const mAPIKEY = !isEmpty(req.body.mAPIKEY) ? req.body.mAPIKEY : "";

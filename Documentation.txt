@@ -1,0 +1,90 @@
+Routes:
+  path: /sync
+    method: GET
+    description: Add/Update Subscribers from Moosend to MailerLite
+    requestBody:
+      mailingId: Moosend Mailing List ID
+      APIKEY: Moosend API KEY
+      mAPIKEY: MailerLite mAPIKEY
+    response:
+      200:
+        description: success
+        content:
+          application/json:
+            schema:
+              type: Array
+              items:
+                type: string
+      401:
+        description: Unauthorized Error
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                  error:
+                    type: number
+                  message:
+                    type: string
+                  platform:
+                    type: string
+      104:
+        description: Unauthorized Error
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                  error:
+                    type: number
+                  message:
+                    type: string
+                  platform:
+                    type: string
+      501:
+        description: Validation_Error
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                  error:
+                    type: number
+                  message:
+                    type: string
+                  platform:
+                    type: string
+
+  path: /syncLite
+    method: POST
+    description: Adds Subscribers from MailerLite to SendFox as Contacts.
+    requestBody:
+      sAPIKEY: SendFox Token
+      mAPIKEY: MailerLite mAPIKEY
+    response:
+      200:
+        description: success
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                data:
+                  type: Object
+                msg:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              type: Object
+              properties:
+                  error:
+                    type: number
+                  message:
+                    type: string
+                  platform:
+                    type: string
+
+      
