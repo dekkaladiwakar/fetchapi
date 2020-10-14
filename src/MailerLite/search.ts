@@ -41,8 +41,9 @@ const searchSub = (
     })
     .catch((err) => {
       return Promise.reject({
-        error: err.statusCode,
-        msg: "Authetication Error",
+        errorCode: err.response.status,
+        msg: err.response.statusText,
+        platform: "MailerLite",
       });
     });
 };

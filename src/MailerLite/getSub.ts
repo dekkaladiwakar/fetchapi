@@ -20,7 +20,11 @@ const getSub = (mAPIKEY: string) => {
       return Promise.resolve(data);
     })
     .catch((err) => {
-      return Promise.reject(err);
+      return Promise.reject({
+        error: err.response.status,
+        message: err.response.statusText,
+        platform: "MailerLite",
+      });
     });
 };
 

@@ -17,7 +17,11 @@ const searchContact = (sAPIKEY: string, email: string) => {
       }
     })
     .catch((err) => {
-      return Promise.reject({ msg: "Please check your token." });
+      return Promise.reject({
+        Error: err.response.status,
+        message: err.response.statusText,
+        platform: "SendFox",
+      });
     });
 };
 

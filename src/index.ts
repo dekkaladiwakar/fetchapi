@@ -10,6 +10,7 @@ const getSubscribers = require("./Moosend/getSubscribers");
 const getSub = require("./MailerLite/getSub");
 const searchContact = require("./SendFox/searchContact");
 const addContact = require("./SendFox/addContact");
+const isEmpty = require("./is-empty");
 
 // Body Parser
 app.use(urlencoded({ extended: false }));
@@ -20,10 +21,10 @@ app.use(json());
 // Syncing Moosend with MailerLite
 app.get("/sync", (req, res) => {
   let data: Array<any> = [];
-  const mAPIKEY = req.body.mAPIKEY;
+  const mAPIKEY = !isEmpty(req.body.mAPIKEY) ? req.body.mAPIKEY : "";
   getSubscribers(req.body)
     .then((result: Array<any>) => {
-      result.forEach((element) => {
+      result.every((element) => {
         searchSub(element, mAPIKEY)
           .then((results: any) => {
             data.push(results);
@@ -45,9 +46,10 @@ app.post("/syncLite", (req, res) => {
   const sAPIKEY = req.body.sAPIKEY;
   let counter = 0;
   let counterFail = 0;
-  getSub(req.body.mAPIKEY)
+  const mAPIKEY = !isEmpty(req.body.mAPIKEY) ? req.body.mAPIKEY : "";
+  getSub(mAPIKEY)
     .then((resultOne: Array<any>) => {
-      resultOne.forEach((element: any) => {
+      resultOne.every((element: any) => {
         searchContact(sAPIKEY, element.email)
           .then((resultTwo: any) => {
             if (resultTwo.status === false) {
@@ -81,10 +83,14 @@ app.post("/syncLite", (req, res) => {
               }
             }
           })
-          .catch((err: {}) => res.json(err));
+          .catch((err: {}) => {
+            res.json(err);
+          });
       });
     })
-    .catch((err: {}) => res.json(err));
+    .catch((err: {}) => {
+      res.json(err);
+    });
 });
 
 app.listen("3000", () => {
