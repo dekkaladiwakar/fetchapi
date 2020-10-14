@@ -1,0 +1,15 @@
+Routes:
+  path: /sync
+    method: GET
+    description: Add/Update Subscribers from Moosend to MailerLite
+    requestBody:
+      mailingId: Moosend Mailing List ID
+      APIKEY: Moosend API KEY
+      mAPIKEY: MailerLite mAPIKEY
+
+  path: /syncLite
+    method: POST
+    description: Adds Subscribers from MailerLite to SendFox as Contacts.
+    requestBody:
+      sAPIKEY: SendFox Token
+      mAPIKEY: MailerLite mAPIKEY
