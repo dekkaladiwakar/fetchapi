@@ -24,11 +24,13 @@ app.get("/sync", (req, res) => {
   const mAPIKEY = !isEmpty(req.body.mAPIKEY) ? req.body.mAPIKEY : "";
   getSubscribers(req.body)
     .then((result: Array<any>) => {
-      result.every((element) => {
+      result.some((element) => {
         searchSub(element, mAPIKEY)
           .then((results: any) => {
             data.push(results);
-            if (data.length === result.length) res.json(data);
+            if (data.length === result.length) {
+              res.json(data);
+            }
           })
           .catch((err: {}) => {
             res.json(err);
@@ -49,7 +51,7 @@ app.post("/syncLite", (req, res) => {
   const mAPIKEY = !isEmpty(req.body.mAPIKEY) ? req.body.mAPIKEY : "";
   getSub(mAPIKEY)
     .then((resultOne: Array<any>) => {
-      resultOne.every((element: any) => {
+      resultOne.some((element: any) => {
         searchContact(sAPIKEY, element.email)
           .then((resultTwo: any) => {
             if (resultTwo.status === false) {
